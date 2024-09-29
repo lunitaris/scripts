@@ -15,7 +15,7 @@ read -p "Passerelle (gateway) (ex: 192.168.3.1) : " gateway
 read -p "Serveur DNS (ex: 8.8.8.8,8.8.4.4) : " dns
 
 # Génération du fichier Netplan avec la syntaxe mise à jour
-cat <<EOF | sudo tee /etc/netplan/01-netcfg.yaml
+sudo cat <<EOF | sudo tee /etc/netplan/01-netcfg.yaml
 network:
   version: 2
   renderer: networkd
@@ -31,6 +31,7 @@ network:
         addresses: [$dns]
 EOF
 
+sudo chmod 600 /etc/netplan/01-netcfg.yaml
 # Applique la configuration
 sudo netplan apply
 
