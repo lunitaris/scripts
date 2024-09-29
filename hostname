@@ -1,0 +1,30 @@
+#!/bin/bash
+# Script qui va SET un nouveau hostname.
+# Si cloud init bloque le changement de hostname, désactivation de ce dernier sur ce paramètre.
+
+  
+# Demande à l'utilisateur de définir le nouveau hostname
+read -p "Nouveau hostname : " new_hostname
+
+# Change le hostname immédiatement
+sudo hostnamectl set-hostname $new_hostname
+echo "Le hostname a été défini à : $new_hostname"
+
+# Met à jour le fichier /etc/hostname pour le rendre persistant
+echo $new_hostname | sudo tee /etc/hostname
+
+# Met à jour le fichier /etc/hosts pour éviter des problèmes de résolution locale
+sudo sed -i "s/127.0.1.1 .*/127.0.1.1 $new_hostname/" /etc/hosts
+
+# Optionnel : désactiver Cloud-init pour éviter que le hostname soit réinitialisé
+if command -v cloud-init > /dev/null 2>&1; then
+    echo "Cloud-init détecté. Désactivation pour éviter qu'il modifie le hostname..."
+    sudo touch /etc/cloud/cloud-init.disabled
+    sudo systemctl disable cloud-init
+    sudo systemctl mask cloud-init
+    echo "Cloud-init désactivé."
+fi
+
+# Affiche le hostname actuel pour vérifier le changement
+echo "Hostname actuel : $(hostname)"
+
